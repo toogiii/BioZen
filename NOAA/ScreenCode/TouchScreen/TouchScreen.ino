@@ -13,9 +13,10 @@
 #define BLUE 0x001F
 #define RED 0xF800
 #define GREEN 0x07E0
-#define CYAN 0x07FF
+#define CYAN 0x05F7
+#define DARKCYAN 0x03EF
 #define MAGENTA 0xF81F
-#define YELLOW 0xFFE0
+#define YELLOW 0xEFA0
 #define WHITE 0xFFFF
 #define NAVY 0x000F /* 0, 0, 128 */
 #define DARKGREEN 0x03E0 /* 0, 128, 0 */
@@ -28,12 +29,12 @@
 #define ORANGE 0xFD20 /* 255, 165, 0 */
 #define GREENYELLOW 0xAFE5 /* 173, 255, 47 */
 
-#define BUTTON_X 40
-#define BUTTON_Y 100
-#define BUTTON_W 60
-#define BUTTON_H 30
-#define BUTTON_SPACING_X 20
-#define BUTTON_SPACING_Y 20
+#define BUTTON_X 62
+#define BUTTON_Y 56
+#define BUTTON_W 105
+#define BUTTON_H 93
+#define BUTTON_SPACING_X 10
+#define BUTTON_SPACING_Y 10
 #define BUTTON_TEXTSIZE 2
 
 #define TEXT_X 10
@@ -52,10 +53,10 @@ uint8_t textfield_i = 0;
 #define YM 9
 #define XP 8
 
-#define TS_MINX 100
-#define TS_MAXX 920
-#define TS_MINY 70
-#define TS_MAXY 900
+#define TS_MINX 390
+#define TS_MAXX 575
+#define TS_MINY 480
+#define TS_MAXY 1023
 
 #define STATUS_X 10
 #define STATUS_Y 65
@@ -63,10 +64,9 @@ uint8_t textfield_i = 0;
 MCUFRIEND_kbv tft;
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-Adafruit_GFX_Button buttons[15];
-char buttonlabels[15][5] = {"Send", "Clr", "End", "1", "2", "3", "4", "5", "6", "7",
-"8", "9", "*", "0", "#" };
-uint16_t buttoncolors[15] = {DARKGREEN, DARKGREY, RED, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, BLUE, ORANGE, BLUE, ORANGE};
+Adafruit_GFX_Button buttons[5];
+char buttonlabels[5][60] = {"Sunny", "Cloudy", "Rainy", "Stormy", "IRL"};
+uint16_t buttoncolors[5] = {YELLOW, LIGHTGREY, BLUE, DARKCYAN, CYAN};
 
 
 void setup() {
@@ -123,15 +123,16 @@ void setup() {
   tft.setRotation(0);
   tft.fillScreen(BLACK);
 
-  for (uint8_t row=0; row<5; row++) {
-    for (uint8_t col=0; col<3; col++) {
-       buttons[col + row * 3].initButton(&tft, BUTTON_X + col * (BUTTON_W + BUTTON_SPACING_X), BUTTON_Y + row * (BUTTON_H + BUTTON_SPACING_Y), BUTTON_W, BUTTON_H, WHITE, buttoncolors[col + row * 3], WHITE, buttonlabels[col + row * 3], BUTTON_TEXTSIZE);
-       buttons[col + row * 3].drawButton();
+  for (uint8_t row=0; row<3; row++) {
+    for (uint8_t col=0; col<2; col++) {
+       if (row * 2 + col > 4) {
+         continue;
+       }
+       buttons[col + row * 2].initButton(&tft, BUTTON_X + col * (BUTTON_W + BUTTON_SPACING_X), BUTTON_Y + row * (BUTTON_H + BUTTON_SPACING_Y), BUTTON_W, BUTTON_H, WHITE, buttoncolors[col + row * 2], WHITE, buttonlabels[col + row * 2], BUTTON_TEXTSIZE);
+       buttons[col + row * 2].drawButton();
+       
     }
   }
-
-  tft.drawRect(TEXT_X, TEXT_Y, TEXT_W, TEXT_H, WHITE);
- 
 }
 
 void status(const __FlashStringHelper *msg) {
@@ -160,11 +161,21 @@ void loop() {
   TSPoint p = ts.getPoint();
   digitalWrite(13, LOW);
 
-  pinMode(XM, OUTPUT);
-  pinMode(YP, OUTPUT);
 
-  for (uint8_t b = 0; b < 15; b++) {
-    if (buttons[b].contains(p.x, p.y)) {
+  pinMode(XM, OUTPUT);
+  pinMode(YM, OUTPUT);
+
+  if (p.z != -1) {
+    p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
+    p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
+    Serial.print("("); Serial.print(p.x); Serial.print(", ");
+    Serial.print(p.y); Serial.print(", ");
+    Serial.print(p.z); Serial.println(") ");
+ }
+  
+
+  for (uint8_t b = 0; b < 5; b++) {
+    if (buttons[b].contains(p.x, p.y) && p.z > MINPRESSURE && p.z < MAXPRESSURE) {
       Serial.print("Pressing: "); 
       Serial.println(b);
       buttons[b].press(true);
@@ -173,13 +184,14 @@ void loop() {
     }
   }
 
-  for (uint8_t b = 0; b < 15; b++) {
+  for (uint8_t b = 0; b < 5; b++) {
     if (buttons[b].justReleased()) {
       Serial.print("Released: ");
       Serial.println(b);
       buttons[b].drawButton();
     }
     if (buttons[b].justPressed()) {
+      Serial.println("x\n");
       buttons[b].drawButton(true);
 
       if (b >= 3) {
@@ -203,15 +215,6 @@ void loop() {
       tft.setTextColor(TEXT_TCOLOR, BLACK);
       tft.setTextSize(TEXT_TSIZE);
       tft.print(textfield);
-      
-      if (b == 2) {
-        status(F("Hanging up"));
-      }
-      if (b == 0) {
-        status(F("Calling"));
-        Serial.print("Calling ");
-        Serial.print(textfield);
-      }
       
       delay(100);
     }
