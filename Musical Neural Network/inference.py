@@ -10,10 +10,10 @@ def get_composer(param_file):
         learning_rate = 1e-10,
         time_fraction = 0.5
     )
-    gan_composer.generative_model.model.load_parameters(filename=param_file)
+    gan_composer.generative_model.model.load_parameters(filename=param_file, ctx=mx.cpu())
     return gan_composer
 
-def compose_music(out_file):
+def compose_music(out_file, gan_composer):
     gan_composer.compose(
         file_path = out_file,
         velocity_mean = 70,

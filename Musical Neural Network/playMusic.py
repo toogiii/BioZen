@@ -2,7 +2,7 @@ import pygame
 import inference
 
 def play_music(composer):
-    composer.compose_music("out.mid")
+    inference.compose_music("out.mid", gan_composer)
     clock = pygame.time.Clock()
     try:
         pygame.mixer.music.load("out.mid")
