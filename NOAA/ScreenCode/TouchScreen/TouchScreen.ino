@@ -72,22 +72,23 @@ uint16_t buttoncolors[5] = {YELLOW, LIGHTGREY, BLUE, DARKCYAN, CYAN};
 void setup() {
   
   // put your setup code here, to run once:
-  Serial.begin(9600);
-  Serial.println(F("TFT LCD test"));
+  Serial.begin(38400);
+  //Serial.println(F("TFT LCD test"));
 
-#ifdef USE_ADAFRUIT_SHIELD_PINOUT
-  Serial.println(F("USING Adafruit 2.4\" TFT Arduino Shield Pinout"));
-#else
-  Serial.println(F("Using Adafruit 2.4\" TFT Breakout Board Pinout"));
-#endif
+//#ifdef USE_ADAFRUIT_SHIELD_PINOUT
+  //Serial.println(F("USING Adafruit 2.4\" TFT Arduino Shield Pinout"));
+//#else
+  //Serial.println(F("Using Adafruit 2.4\" TFT Breakout Board Pinout"));
+//#endif
 
-  Serial.print("TFT size is "); Serial.print(tft.width()); 
-  Serial.print("x");
-  Serial.println(tft.height());
+  //Serial.print("TFT size is "); Serial.print(tft.width()); 
+  //Serial.print("x");
+  //Serial.println(tft.height());
  
   tft.reset();
  
   uint16_t identifier = tft.readID();
+  /*
   if(identifier == 0x9325) {
     Serial.println(F("Found ILI9325 LCD driver"));
   } else if (identifier == 0x9328) {
@@ -118,7 +119,7 @@ void setup() {
     Serial.println(F("matches the tutorial."));
     identifier=0x9341;
   } 
-
+  */
   tft.begin(identifier);
   tft.setRotation(0);
   tft.fillScreen(BLACK);
@@ -159,7 +160,7 @@ int buttonPressed(int x, int y, int z) {
   if (z > MAXPRESSURE || z < MINPRESSURE || x < 400 || x > 600) {
     return 5;
   }
-  if (y > map(x, 490, 560, 815, 970) && y < map(x, 490, 560, 915, 990)) {
+  if (y < 260 && y > 230) {
     return 4;
   } else if (y > map(x, 450, 550, 720, 955) && y < map(x, 450, 550, 815, 970)) {
     return 3;
@@ -188,17 +189,16 @@ void loop() {
   if (p.z != -1) {
     p.x = map(p.x, TS_MINX, TS_MAXX, 0, 240);
     p.y = map(p.y, TS_MINY, TS_MAXY, 0, 320);
-    Serial.print("("); Serial.print(p.x); Serial.print(", ");
-    Serial.print(p.y); Serial.print(", ");
-    Serial.print(p.z); Serial.println(") ");
+    //Serial.print("("); Serial.print(p.x); Serial.print(", ");
+    //Serial.print(p.y); Serial.println(", ");
+    //Serial.print(p.z); Serial.println(") ");
  }
 
   buttonPressed(p.x, p.y, p.z);
 
   for (uint8_t b = 0; b < 5; b++) {
-    if (/*buttonPressed(p.x, p.y, p.z) == b*/buttons[b].contains(p.x, p.y)) {
-      Serial.print("Pressing: "); 
-      Serial.println(b);
+    if (/*buttonPressed(p.x, p.y, p.z) == b*/buttons[b].contains(p.x, p.y)) { 
+      Serial.println(b+1);
       buttons[b].press(true);
     } else {
       buttons[b].press(false);
@@ -207,12 +207,12 @@ void loop() {
 
   for (uint8_t b = 0; b < 5; b++) {
     if (buttons[b].justReleased()) {
-      Serial.print("Released: ");
-      Serial.println(b);
+      //Serial.print("Released: ");
+      //Serial.println(b);
       buttons[b].drawButton();
     }
     if (buttons[b].justPressed()) {
-      Serial.println("x\n");
+      //Serial.println("x\n");
       buttons[b].drawButton(true);
 
       if (b >= 3) {
@@ -231,7 +231,7 @@ void loop() {
         }
       }
 
-      Serial.println(textfield);
+      //Serial.println(textfield);
       tft.setCursor(TEXT_X + 2, TEXT_Y + 10);
       tft.setTextColor(TEXT_TCOLOR, BLACK);
       tft.setTextSize(TEXT_TSIZE);

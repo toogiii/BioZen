@@ -1,7 +1,7 @@
 import serial
 
 weather = open('weather.txt', 'r')
-send = weather.readlines().lower()
+send = weather.read().lower()
 weather.close()
 mode = 0
 
@@ -15,6 +15,8 @@ elif "mostly cloud" in send or "fog" in send:
 elif "partly" in send or "sun" in send or "clear" in send:
     mode = 1
 
-uno = serial.Serial("/dev/ttyUSB1", 115200, timeout = 1)
-uno.write(bytes((str(mode) + "\n"), "utf-8"))
-uno.close()
+
+print(mode)
+#uno = serial.Serial("/dev/ttyUSB1", 115200, timeout = 1)
+#uno.write(bytes((str(mode) + "\n"), "utf-8"))
+#uno.close()
