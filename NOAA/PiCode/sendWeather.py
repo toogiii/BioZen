@@ -12,7 +12,7 @@ elif "rain" in send:
     mode = 3
 elif "mostly cloud" in send or "fog" in send:
     mode = 2
-elif "partly" in send or "sun" in send:
+elif "partly" in send or "sun" in send or "clear" in send:
     mode = 1
 
 uno = serial.Serial("/dev/ttyUSB1", 115200, timeout = 1)

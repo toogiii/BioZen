@@ -1,7 +1,7 @@
 import serial
 import subprocess
 
-nano = serial.Serial("/dev/ttyUSB1", 28800, timeout = 1)
+ts = serial.Serial("/dev/ttyUSB1", 28800, timeout = 1)
 mode = '0'
 while True:
     try:

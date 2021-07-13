@@ -29,10 +29,10 @@
 #define ORANGE 0xFD20 /* 255, 165, 0 */
 #define GREENYELLOW 0xAFE5 /* 173, 255, 47 */
 
-#define BUTTON_X 62
-#define BUTTON_Y 56
-#define BUTTON_W 105
-#define BUTTON_H 93
+#define BUTTON_X 120
+#define BUTTON_Y 36
+#define BUTTON_W 220
+#define BUTTON_H 52
 #define BUTTON_SPACING_X 10
 #define BUTTON_SPACING_Y 10
 #define BUTTON_TEXTSIZE 2
@@ -123,13 +123,10 @@ void setup() {
   tft.setRotation(0);
   tft.fillScreen(BLACK);
 
-  for (uint8_t row=0; row<3; row++) {
-    for (uint8_t col=0; col<2; col++) {
-       if (row * 2 + col > 4) {
-         continue;
-       }
-       buttons[col + row * 2].initButton(&tft, BUTTON_X + col * (BUTTON_W + BUTTON_SPACING_X), BUTTON_Y + row * (BUTTON_H + BUTTON_SPACING_Y), BUTTON_W, BUTTON_H, WHITE, buttoncolors[col + row * 2], WHITE, buttonlabels[col + row * 2], BUTTON_TEXTSIZE);
-       buttons[col + row * 2].drawButton();
+  for (uint8_t row=0; row<5; row++) {
+    for (uint8_t col=0; col<1; col++) {
+       buttons[col + row].initButton(&tft, BUTTON_X + col * (BUTTON_W + BUTTON_SPACING_X), BUTTON_Y + row * (BUTTON_H + BUTTON_SPACING_Y), BUTTON_W, BUTTON_H, WHITE, buttoncolors[col + row], WHITE, buttonlabels[col + row], BUTTON_TEXTSIZE);
+       buttons[col + row].drawButton();
        
     }
   }
@@ -151,8 +148,31 @@ void status(char *msg) {
   tft.print(msg);
 }
 
-#define MINPRESSURE 10
+
+#define MINPRESSURE 50
 #define MAXPRESSURE 1000
+
+int buttonPressed(int x, int y, int z) {
+  //Serial.print("("); Serial.print(x); Serial.print(", ");
+  //Serial.print(y); Serial.print(", ");
+  //Serial.print(z); Serial.println(") ");
+  if (z > MAXPRESSURE || z < MINPRESSURE || x < 400 || x > 600) {
+    return 5;
+  }
+  if (y > map(x, 490, 560, 815, 970) && y < map(x, 490, 560, 915, 990)) {
+    return 4;
+  } else if (y > map(x, 450, 550, 720, 955) && y < map(x, 450, 550, 815, 970)) {
+    return 3;
+  } else if (y > map(x, 430, 550, 640, 940) && y < map(x, 430, 550, 720, 955)) {
+    return 2;
+  } else if (y > map(x, 410, 550, 570, 925) && y < map(x, 410, 550, 640, 940)) {
+    return 1;
+  } else if (y > map(x, 400, 550, 530, 910) && y < map(x, 400, 550, 570, 925)) {
+    return 0;
+  }
+  return 5;
+}
+
 
 void loop() {
   
@@ -166,16 +186,17 @@ void loop() {
   pinMode(YM, OUTPUT);
 
   if (p.z != -1) {
-    p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
-    p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.height());
+    p.x = map(p.x, TS_MINX, TS_MAXX, 0, 240);
+    p.y = map(p.y, TS_MINY, TS_MAXY, 0, 320);
     Serial.print("("); Serial.print(p.x); Serial.print(", ");
     Serial.print(p.y); Serial.print(", ");
     Serial.print(p.z); Serial.println(") ");
  }
-  
+
+  buttonPressed(p.x, p.y, p.z);
 
   for (uint8_t b = 0; b < 5; b++) {
-    if (buttons[b].contains(p.x, p.y) && p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+    if (/*buttonPressed(p.x, p.y, p.z) == b*/buttons[b].contains(p.x, p.y)) {
       Serial.print("Pressing: "); 
       Serial.println(b);
       buttons[b].press(true);
