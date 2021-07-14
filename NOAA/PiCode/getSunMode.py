@@ -4,10 +4,10 @@ from astral import Observer
 import serial
 from time import sleep
 
-
+uno = serial.Serial("/dev/ttyUSB1", 9600, timeout = 1)
 
 while True:
-    uno = serial.Serial("/dev/ttyUSB1", 115200, timeout = 1)
+
     location = open('/home/pi/BioZen/NOAA/PiCode/loc.txt', 'r')
     coords = location.read().split('\n')
     lat = float(coords[0])
@@ -23,14 +23,15 @@ while True:
     sunMode = 0
 
     if abs(sunrise - current_time) < timedelta(minutes=30):
-        sunMode = '1'
+        sunMode = 'q\n'
     elif abs(sunset - current_time) < timedelta(minutes=30):
-        sunMode = '3'
+        sunMode = 't\n'
     elif current_time - sunset > timedelta() or sunrise - current_time > timedelta():
-        sunMode = '4'
+        sunMode = 'e\n'
     elif current_time - sunset < timedelta() or sunrise - current_time < timedelta():
-        sunMode = '2'
-        print(sunMode)
-    sleep(10)
-    uno.write(bytes((sunMode + "\n"), "utf-8"))
-    uno.close()    
+        sunMode = 'w\n'
+    print(bytes((sunMode), "utf-8"))
+    uno.write(bytes((sunMode), "utf-8"))
+    sleep(7200)
+uno.close() 
+       
