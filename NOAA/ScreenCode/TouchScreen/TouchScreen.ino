@@ -65,7 +65,7 @@ MCUFRIEND_kbv tft;
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
 Adafruit_GFX_Button buttons[5];
-char buttonlabels[5][60] = {"Sunny", "Cloudy", "Rainy", "Stormy", "IRL"};
+char buttonlabels[5][60] = {"Sunny", "Oscillate", "Rainy", "Storm", "IRL"};
 uint16_t buttoncolors[5] = {YELLOW, LIGHTGREY, BLUE, DARKCYAN, CYAN};
 
 

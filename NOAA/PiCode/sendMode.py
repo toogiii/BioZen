@@ -25,19 +25,19 @@ while True: # Run forever\
             process.terminate()
         if GPIO.input(40) == GPIO.HIGH:
             print("Button 4 was pushed!")
-            mode = 4
+            mode = 'l'
         elif GPIO.input(7) == GPIO.HIGH:
             print("Button 3 was pushed!")
-            mode = 3
+            mode = 'r'
         elif GPIO.input(10) == GPIO.HIGH:
             print("Button 2 was pushed!")
-            mode = 2
+            mode = 'u'
         elif GPIO.input(12) == GPIO.HIGH:
             print("Button 1 was pushed!")
-            mode = 1
+            mode = 's'
         elif GPIO.input(36) == GPIO.HIGH:
             print("RAINBOW MODE!")
-            mode = "r"
+            mode = "b"
         uno = serial.Serial("/dev/ttyUSB1", 115200, timeout = 1)
         uno.write(bytes(str(mode) + "\n", "utf-8"))
         uno.close()

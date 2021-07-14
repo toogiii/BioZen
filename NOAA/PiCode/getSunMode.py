@@ -23,13 +23,13 @@ while True:
     sunMode = 0
 
     if abs(sunrise - current_time) < timedelta(minutes=30):
-        sunMode = '6'
+        sunMode = '1'
     elif abs(sunset - current_time) < timedelta(minutes=30):
-        sunMode = '7'
+        sunMode = '3'
     elif current_time - sunset > timedelta() or sunrise - current_time > timedelta():
-        sunMode = '8'
+        sunMode = '4'
     elif current_time - sunset < timedelta() or sunrise - current_time < timedelta():
-        sunMode = '9'
+        sunMode = '2'
         print(sunMode)
     sleep(10)
     uno.write(bytes((sunMode + "\n"), "utf-8"))
