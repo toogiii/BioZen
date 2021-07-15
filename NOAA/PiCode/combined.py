@@ -1,7 +1,13 @@
 import serial
 import subprocess
 from time import sleep
+from astral.sun import sun
+from datetime import datetime, timedelta
+from astral import Observer
+import serial
+from time import sleep
 mode = 0
+sunMode = 0
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 GPIO.setwarnings(False) # Ignore warning for now
 GPIO.setmode(GPIO.BOARD) # Use physical pin numbering
@@ -13,9 +19,34 @@ GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(36, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 process = None
 sent = False
-uno = serial.Serial("/dev/ttyACM0", 9600, timeout = 100)
+uno = serial.Serial("/dev/ttyUSB1", 9600, timeout = 100)
 while True: # Run forever\]
+    location = open('/home/pi/BioZen/NOAA/PiCode/loc.txt', 'r')
+    coords = location.read().split('\n')
+    lat = float(coords[0])
+    lon = float(coords[1])
+    location.close()
+
+    current_time = datetime.now().astimezone()
+    obs = Observer(latitude=lat, longitude=lon)
+    s = sun(obs, date=current_time, tzinfo=current_time.tzinfo)
+    sunrise = s['sunrise']
+    sunset = s['sunset']
+
     
+
+    if abs(sunrise - current_time) < timedelta(minutes=30):
+        sunMode = 4
+    elif abs(sunset - current_time) < timedelta(minutes=30):
+        sunMode = 6
+    elif current_time - sunset > timedelta() or sunrise - current_time > timedelta():
+        sunMode = 4
+    elif current_time - sunset < timedelta() or sunrise - current_time < timedelta():
+        sunMode = 5
+    print(bytes(str(sunMode), 'utf-8'))
+    uno.write(bytes(str(sunMode) + "\n", "utf-8"))
+    data = uno.readline().rstrip().decode('utf8')
+    print(data)
     if GPIO.input(13) == GPIO.HIGH:
         while GPIO.input(13) == GPIO.HIGH:
             pass
@@ -55,39 +86,11 @@ while True: # Run forever\]
                 pass
             print("RAINBOW MODE!")
             sent = False
-            mode = 2
+            mode = 9
         if mode > 0 and not sent:
             uno.write(bytes(str(mode) + "\n", "utf-8"))
             sleep(1)
-            #data = uno.readline().rstrip().decode('utf8')
-            #print(data)
+            data = uno.readline().rstrip().decode('utf8')
+            print(data)
             sent = True
 uno.close()
-        
-
-"""
-ts = serial.Serial("/dev/ttyUSB0", 38400, timeout = 1)
-mode = []
-while True:
-    #try:
-    ser_bytes = ts.readline()
-    ser_msg = ser_bytes[0:len(ser_bytes) - 2].decode('utf-8')
-    if ser_msg != '':
-        mode.append(ser_msg)
-    
-    except:
-        print("Keyboard Interrupt")
-        break
-    
-    if (len(mode)==30 and mode.count('5') > 27):
-        #subprocess.call("./weatherMode.sh", shell=True)
-        print(mode, 5)
-        mode = []
-    elif (len(mode)==30):
-        #uno = serial.Serial("/dev/ttyUSB1", 115200, timeout = 1)
-        #uno.write(bytes(str(int((max(set(mode), key=mode.count)) - 1) + "\n"), "utf-8"))
-        #uno.close()
-        print(mode)
-        print(str(min([int(i) for i in mode])+) + "\n")
-        mode = []  
-"""

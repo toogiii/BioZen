@@ -4,8 +4,23 @@ from astral import Observer
 import serial
 from time import sleep
 
-uno = serial.Serial("/dev/ttyUSB1", 9600, timeout = 1)
+"""
+import serial
+import time
+arduino = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=.1)
+def write_read(x):
+    arduino.write(bytes(x, 'utf-8'))
+    time.sleep(0.05)
+    data = arduino.readline()
+    return data
+while True:
+    num = input("Enter a number: ") # Taking input from user
+    value = write_read(num)
+    print(value.rstrip().decode('utf-8')) # printing the value
 
+"""
+uno = serial.Serial(port="/dev/ttyACM0", baudrate=9600, timeout = .1)
+sunMode = 0
 while True:
 
     location = open('/home/pi/BioZen/NOAA/PiCode/loc.txt', 'r')
@@ -20,18 +35,21 @@ while True:
     sunrise = s['sunrise']
     sunset = s['sunset']
 
-    sunMode = 0
+    
 
     if abs(sunrise - current_time) < timedelta(minutes=30):
-        sunMode = 'q\n'
+        sunMode = 4
     elif abs(sunset - current_time) < timedelta(minutes=30):
-        sunMode = 't\n'
+        sunMode = 6
     elif current_time - sunset > timedelta() or sunrise - current_time > timedelta():
-        sunMode = 'e\n'
+        sunMode = 7
     elif current_time - sunset < timedelta() or sunrise - current_time < timedelta():
-        sunMode = 'w\n'
-    print(bytes((sunMode), "utf-8"))
-    uno.write(bytes((sunMode), "utf-8"))
-    sleep(7200)
+        sunMode = 4
+    print(bytes(str(sunMode), 'utf-8'))
+    uno.write(bytes(str(sunMode) + "\n", "utf-8"))
+    data = uno.readline().rstrip().decode('utf8')
+    print(data)
+    sleep(1)
+    
 uno.close() 
        
