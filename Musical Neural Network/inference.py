@@ -16,6 +16,6 @@ def get_composer(param_file):
 def compose_music(out_file, gan_composer):
     gan_composer.compose(
         file_path = out_file,
-        velocity_mean = 70,
-        velocity_std = 10
+        velocity_mean = 30,
+        velocity_std = 0
     )    

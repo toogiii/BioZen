@@ -13,7 +13,7 @@ def play_music(composer):
         clock.tick(30)
     
 while True:
-    gan_composer = inference.get_composer(r"C:\Users\garvg\OneDrive\Documents\GitHub\BioZen\Musical Neural Network\Lambdas\210min.params")
+    gan_composer = inference.get_composer(r"C:\Users\garvg\OneDrive\Documents\GitHub\BioZen\Musical Neural Network\Lambdas\270min.params")
     freq = 44100
     bitsize = -16
     channels = 2
